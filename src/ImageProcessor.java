@@ -3,12 +3,23 @@ import java.awt.*;
 import java.io.File;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.Buffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
 
 public class ImageProcessor {
 
+    private int maxGrayScaleValue;
+    private int minGrayScaleValue;
+
+
     public void grayScale(){
 
+        List<Integer> pixelArray = new ArrayList<>();
         File originalImage = new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\chou1.jpg");
 
         BufferedImage bufferedImage = null;
@@ -29,11 +40,19 @@ public class ImageProcessor {
 
                     //change original pixel to gray scale value
                     int grayValue = (int)(r * 0.299 + g * 0.587 + b * 0.114);
+                    pixelArray.add(grayValue);
                     int newPixel = colorToRGB(255, grayValue, grayValue, grayValue);
                     grayScaleImage.setRGB(i, j, newPixel);
+
                 }
 
             }
+
+            Collections.sort(pixelArray);
+            this.maxGrayScaleValue = pixelArray.get(pixelArray.size() - 1);
+            this.minGrayScaleValue = pixelArray.get(0);
+
+            System.out.println("min " + minGrayScaleValue + " max " + maxGrayScaleValue);
 
             //Write to file
             ImageIO.write(grayScaleImage, "jpeg", new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\grayScaleChou.jpg"));
@@ -49,6 +68,7 @@ public class ImageProcessor {
 
         BufferedImage bufferedImage = null;
         File grayImage = null;
+
 
         try{
             grayImage = new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\grayScaleChou.jpg");
@@ -84,6 +104,8 @@ public class ImageProcessor {
             }
         }
 
+
+
         //write Image
         try{
             grayImage = new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\nagativeChou.jpg");
@@ -94,6 +116,106 @@ public class ImageProcessor {
 
 
     }
+
+    public void setGamma(double gammaValue) throws IOException {
+
+        double gamma = gammaValue;
+        File grayScaleImage = new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\grayScaleChou.jpg");
+
+        BufferedImage bufferedImage = null;
+
+
+        try{
+
+            bufferedImage = ImageIO.read(grayScaleImage);
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        //Set the gamma parameter into each pixel
+        // Gamma function -> output = input ^ gamma
+        for (int y = 0; y < bufferedImage.getHeight(); y++){
+            for (int x = 0; x < bufferedImage.getWidth(); x++){
+
+                int pixel = bufferedImage.getRGB(x, y);
+
+                float floatRed = ((pixel & 0xff0000)>> 16) / 255f;
+                float floatGreen = ((pixel & 0xff00)>> 8) / 255f;
+                float floatBlue = ((pixel & 0xff)) / 255f;
+
+                int gammaPixel = colorToRGB(255, (int) Math.round(Math.pow(floatRed, gamma) * 255), (int) Math.round(Math.pow(floatGreen, gamma) * 255), (int) Math.round(Math.pow(floatBlue, gamma) * 255));
+                bufferedImage.setRGB(x, y, gammaPixel);
+            }
+        }
+
+        if (gamma < 1){
+
+            ImageIO.write(bufferedImage, "jpeg", new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\lowGammaChou.jpg"));
+        }else{
+
+            ImageIO.write(bufferedImage, "jpeg", new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\highGammaChou.jpg"));
+        }
+
+    }
+
+    public void contrast(double gammaValue) throws IOException {
+
+        double gamma = gammaValue;
+        File grayScaleImage = new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\grayScaleChou.jpg");
+
+        BufferedImage bufferedImage = null;
+
+
+        try{
+
+            bufferedImage = ImageIO.read(grayScaleImage);
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        //Set the gamma parameter into each pixel
+        // Gamma function -> output = input ^ gamma
+        for (int y = 0; y < bufferedImage.getHeight(); y++){
+            for (int x = 0; x < bufferedImage.getWidth(); x++){
+
+                int pixel = bufferedImage.getRGB(x, y);
+
+                float floatRed = (((pixel & 0xff0000)>> 16) - minGrayScaleValue) / (float)(maxGrayScaleValue - minGrayScaleValue);
+                float floatGreen = (((pixel & 0xff00)>> 8) - minGrayScaleValue) / (float)(maxGrayScaleValue - minGrayScaleValue);
+                float floatBlue = (((pixel & 0xff)) - minGrayScaleValue) / (float)(maxGrayScaleValue - minGrayScaleValue);
+
+                int gammaPixel = colorToRGB(255, (int) Math.round(Math.pow(floatRed, gamma) * 255), (int) Math.round(Math.pow(floatGreen, gamma) * 255), (int) Math.round(Math.pow(floatBlue, gamma) * 255));
+                bufferedImage.setRGB(x, y, gammaPixel);
+            }
+        }
+
+        ImageIO.write(bufferedImage, "jpeg", new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\contrastChou.jpg"));
+
+
+    }
+
+    public void saltAndPepper(float rate) throws IOException{
+
+        File lowGammaScaleImage = new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\lowGammaChou.jpg");
+        BufferedImage bufferedImage = null;
+        Random rand = new Random();
+
+        try{
+            bufferedImage = ImageIO.read(lowGammaScaleImage);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        BufferedImage processImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
+
+
+
+
+    }
+
+
 
     private int colorToRGB(int alpha, int red, int green, int blue) {
         int newPixel = 0;
@@ -106,5 +228,6 @@ public class ImageProcessor {
         newPixel += blue;
         return newPixel;
     }
+
 
 }
