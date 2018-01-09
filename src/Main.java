@@ -13,10 +13,11 @@ public class Main {
 
         imageProcess.grayScale();
         imageProcess.negative();
-        imageProcess.setGamma(0.2);
+        imageProcess.setGamma(0.7);
         imageProcess.setGamma(2);
         imageProcess.contrast(2);
         imageProcess.saltAndPepper(0.9f);
         imageProcess.binary();
+        imageProcess.Filter("Median");
     }
 }

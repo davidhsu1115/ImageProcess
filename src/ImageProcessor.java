@@ -5,10 +5,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.Buffer;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 
 public class ImageProcessor {
@@ -148,7 +146,15 @@ public class ImageProcessor {
                 float floatGreen = ((pixel & 0xff00)>> 8) / 255f;
                 float floatBlue = ((pixel & 0xff)) / 255f;
 
-                int gammaPixel = colorToRGB(255, (int) Math.round(Math.pow(floatRed, gamma) * 255), (int) Math.round(Math.pow(floatGreen, gamma) * 255), (int) Math.round(Math.pow(floatBlue, gamma) * 255));
+                int gammaRed = (int) Math.round(Math.pow(floatRed, gamma) * 255);
+                int gammaGreen = (int) Math.round(Math.pow(floatGreen, gamma) * 255);
+                int gammaBlue = (int) Math.round(Math.pow(floatBlue, gamma) * 255);
+
+                if (gammaRed > 255) gammaRed = 255;
+                if (gammaGreen > 255) gammaGreen = 255;
+                if (gammaBlue > 255) gammaBlue = 255;
+
+                int gammaPixel = colorToRGB(255, gammaRed, gammaGreen, gammaBlue);
                 bufferedImage.setRGB(x, y, gammaPixel);
             }
         }
@@ -278,6 +284,56 @@ public class ImageProcessor {
         }
 
         ImageIO.write(processImage, "jpeg", new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\binaryChou.jpg"));
+
+    }
+
+    public void Filter(String filterType) throws IOException{
+
+        File importImage = null;
+
+        if (filterType == "Median"){
+            importImage = new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\saltAndPepperChou.jpg");
+        }
+
+        BufferedImage bufferedImage = null;
+
+        try{
+            bufferedImage = ImageIO.read(importImage);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        BufferedImage processImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
+        for (int x = 0; x < bufferedImage.getWidth() - 2; x++){
+            for (int y = 0; y < bufferedImage.getHeight() - 2; y++){
+
+                int blue[] = new int[9];
+
+                for (int i = 0; i < 3; i++){
+                    for (int j = 0; j < 3; j++){
+                        int pixel = bufferedImage.getRGB(i + x, j + y);
+                        blue[i + 3 * j] = (pixel & 0xff);
+                    }
+                }
+
+                Arrays.sort(blue);
+                if (filterType == "Median"){
+                    int newPixel = colorToRGB(255, blue[4], blue[4], blue[4]);
+                    processImage.setRGB(x + 1, y + 1, newPixel);
+                }else{
+                    int newPixel = colorToRGB(255, blue[8], blue[8], blue[8]);
+                    processImage.setRGB(x + 1, y + 1, newPixel);
+                }
+
+            }
+        }
+
+        if (filterType == "Median"){
+            ImageIO.write(processImage, "jpeg", new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\medianFilter.jpg"));
+        }else{
+            ImageIO.write(processImage, "jpeg", new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\maxFilter.jpg"));
+        }
+
 
     }
 
