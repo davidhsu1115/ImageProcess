@@ -16,5 +16,6 @@ public class Main {
         imageProcess.setGamma(0.2);
         imageProcess.setGamma(2);
         imageProcess.contrast(2);
+        imageProcess.saltAndPepper(0.9f);
     }
 }

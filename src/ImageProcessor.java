@@ -209,7 +209,35 @@ public class ImageProcessor {
         }
 
         BufferedImage processImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
+        for (int x = 0; x < bufferedImage.getWidth(); x++){
+            for (int y = 0; y < bufferedImage.getHeight(); y++){
 
+                int pixel = bufferedImage.getRGB(x, y);
+                int red = (pixel >> 16) & 0xff;
+                int green = (pixel >> 8) & 0xff;
+                int blue = pixel & 0xff;
+
+                if (rand.nextFloat() > rate){
+
+                    if (rand.nextFloat() > 0.5f){
+
+                        int newPixel = colorToRGB(255, 255, 255, 255);
+                        processImage.setRGB(x, y, newPixel);
+                    }else{
+                        int newPixel = colorToRGB(255, 0, 0, 0);
+                        processImage.setRGB(x, y, newPixel);
+                    }
+
+                }else{
+
+                    int newPixel = colorToRGB(255, red, green, blue);
+                    processImage.setRGB(x, y, newPixel);
+                }
+
+            }
+        }
+
+        ImageIO.write(processImage, "jpeg", new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\saltAndPepperChou.jpg"));
 
 
 
