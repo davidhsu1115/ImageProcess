@@ -287,12 +287,16 @@ public class ImageProcessor {
 
     }
 
-    public void Filter(String filterType) throws IOException{
+    public void filter(String filterType) throws IOException{
 
         File importImage = null;
 
         if (filterType == "Median"){
             importImage = new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\saltAndPepperChou.jpg");
+        }else if (filterType == "Max"){
+            importImage = new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\lapiacianChou.jpg");
+        }else{
+            System.out.println("Wrong filter type.");
         }
 
         BufferedImage bufferedImage = null;
@@ -333,6 +337,50 @@ public class ImageProcessor {
         }else{
             ImageIO.write(processImage, "jpeg", new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\maxFilter.jpg"));
         }
+
+
+    }
+
+    public void lapiacian() throws IOException {
+
+        File importImage = new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\contrastChou.jpg");
+        BufferedImage bufferedImage = null;
+
+        try{
+            bufferedImage = ImageIO.read(importImage);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        BufferedImage processImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
+
+        for (int x = 1; x < bufferedImage.getWidth() - 1; x++){
+            for (int y = 1; y < bufferedImage.getHeight() - 1; y++){
+
+                int pixel = bufferedImage.getRGB(x, y);
+                int centerBlue = pixel & 0xff;
+
+                pixel = bufferedImage.getRGB(x + 1, y);
+                int rightBlue = pixel & 0xff;
+
+                pixel = bufferedImage.getRGB(x - 1, y);
+                int leftBlue = pixel & 0xff;
+
+                pixel = bufferedImage.getRGB(x, y + 1);
+                int topBlue = pixel & 0xff;
+
+                pixel = bufferedImage.getRGB(x, y - 1);
+                int downBlue = pixel & 0xff;
+
+                int pixelBlue = (int) Math.abs(rightBlue + leftBlue + topBlue + downBlue - 4 * centerBlue);
+                pixelBlue = Math.min(255, Math.max(0, pixelBlue));
+
+                int newPixel = colorToRGB(255, pixelBlue, pixelBlue, pixelBlue);
+                processImage.setRGB(x, y, newPixel);
+            }
+        }
+
+        ImageIO.write(processImage, "jpeg", new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\lapiacianChou.jpg"));
 
 
     }
