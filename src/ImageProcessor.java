@@ -15,6 +15,8 @@ public class ImageProcessor {
 
     private int maxGrayScaleValue;
     private int minGrayScaleValue;
+    private int summaryGrayScaleValue;
+    private int averageGrayScaleValue;
 
 
     public void grayScale(){
@@ -51,6 +53,8 @@ public class ImageProcessor {
             Collections.sort(pixelArray);
             this.maxGrayScaleValue = pixelArray.get(pixelArray.size() - 1);
             this.minGrayScaleValue = pixelArray.get(0);
+            this.summaryGrayScaleValue = pixelArray.stream().mapToInt(Integer::intValue).sum();
+            this.averageGrayScaleValue = (int) (summaryGrayScaleValue / pixelArray.size());
 
             System.out.println("min " + minGrayScaleValue + " max " + maxGrayScaleValue);
 
@@ -240,6 +244,40 @@ public class ImageProcessor {
         ImageIO.write(processImage, "jpeg", new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\saltAndPepperChou.jpg"));
 
 
+
+    }
+
+    public void binary() throws IOException{
+
+        File highGammaImage = new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\highGammaChou.jpg");
+        BufferedImage bufferedImage = null;
+
+        try{
+            bufferedImage = ImageIO.read(highGammaImage);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        BufferedImage processImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
+
+        for (int x = 0; x < bufferedImage.getWidth(); x++){
+            for (int y = 0; y < bufferedImage.getHeight(); y++){
+
+                int pixel = bufferedImage.getRGB(x, y);
+                int blue = pixel & 0xff;
+
+                if (blue > averageGrayScaleValue){
+                    int newPixel = colorToRGB(255, 255, 255, 255);
+                    processImage.setRGB(x, y, newPixel);
+                }else {
+                    int newPixel = colorToRGB(255, 0, 0, 0);
+                    processImage.setRGB(x, y, newPixel);
+                }
+
+            }
+        }
+
+        ImageIO.write(processImage, "jpeg", new File("C:\\Users\\Fang Wei Hsu\\IdeaProjects\\ImageProcess\\src\\OutputImage\\binaryChou.jpg"));
 
     }
 
